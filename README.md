@@ -1,71 +1,210 @@
-# Getting Started with Create React App
+# 🍽️ Containerizing a Node.js Application Using CI/CD Pipeline
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+An end-to-end DevOps pipeline that takes a Node.js web application (a Zomato-style food discovery app) from source code to a running, security-scanned Docker container — fully automated with Jenkins.
 
-## Available Scripts
+![Pipeline Passed](https://img.shields.io/badge/pipeline-passing-brightgreen)
+![Docker](https://img.shields.io/badge/containerized-Docker-blue)
+![Quality Gate](https://img.shields.io/badge/SonarQube-Quality%20Gate%20Passed-success)
+![Security Scan](https://img.shields.io/badge/Trivy-Scanned-orange)
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 📌 Project Overview
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+This project demonstrates a **production-style CI/CD pipeline** built entirely with Jenkins, covering everything a real DevOps workflow needs:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Automated build triggered on every code change
+- Static code quality analysis with SonarQube
+- Docker image build and containerization
+- Vulnerability scanning of both the filesystem and the built image using Trivy
+- Automated push to Docker Hub
+- Automated deployment of the container
 
-### `npm test`
+The goal was to simulate how a real engineering team ships a Node.js application safely and repeatably — not just "build and deploy," but **build, test, scan, and only then deploy.**
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 🧰 Tech Stack
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+| Category | Tool |
+|---|---|
+| CI/CD Orchestration | Jenkins |
+| Language / Runtime | Node.js |
+| Containerization | Docker |
+| Code Quality | SonarQube |
+| Security Scanning | Trivy (filesystem + image scan) |
+| Image Registry | Docker Hub |
+| Version Control | Git & GitHub |
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🔄 Pipeline Architecture
 
-### `npm run eject`
+```
+ ┌─────────────────┐
+ │  Tool Install    │  Install required CLI tools (Node, Docker, scanners)
+ └────────┬─────────┘
+          │
+ ┌────────▼─────────┐
+ │ Clean Workspace   │  Wipe previous build artifacts
+ └────────┬─────────┘
+          │
+ ┌────────▼─────────┐
+ │  Code (Checkout)  │  Pull latest source from GitHub
+ └────────┬─────────┘
+          │
+ ┌────────▼─────────┐
+ │  CQA (SonarQube)  │  Static code analysis & quality gate check
+ └────────┬─────────┘
+          │
+ ┌────────▼─────────┐
+ │   Build Code      │  Install dependencies & build the app
+ └────────┬─────────┘
+          │
+ ┌────────▼─────────┐
+ │   Docker Build     │  Build the container image
+ └────────┬─────────┘
+          │
+ ┌────────▼─────────┐
+ │ Trivy (Filesystem)│  Scan source/dependency files for vulnerabilities
+ └────────┬─────────┘
+          │
+ ┌────────▼─────────┐
+ │  Trivy Image Scan  │  Scan the built Docker image itself
+ └────────┬─────────┘
+          │
+ ┌────────▼─────────┐
+ │   Push to Docker   │  Publish image to Docker Hub
+ │       Hub          │
+ └────────┬─────────┘
+          │
+ ┌────────▼─────────┐
+ │  Docker Deploy      │  Run the container from the published image
+ └────────┬─────────┘
+          │
+ ┌────────▼─────────┐
+ │  Post Actions       │  Notifications / cleanup / reporting
+ └──────────────────┘
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Pipeline Performance (Actual Run)
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+| Stage | Time |
+|---|---|
+| Declarative: Tool Install | 182ms |
+| Clean Workspace | 420ms |
+| Code | 1s |
+| CQA | 32s |
+| Build code | 25s |
+| Docker Build | 3min 29s |
+| Trivy Files | 12s |
+| Image Scan | 1min 52s |
+| DockerHub Push | 1min 16s |
+| Docker Deploy | 765ms |
+| Post Actions | 335ms |
+| **Total Runtime** | **~7min 53s** |
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+---
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 📸 Screenshots
 
-## Learn More
+> Add these images to a `screenshots/` folder in your repo, then they'll render automatically below.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+**Jenkins Dashboard**
+![Jenkins Dashboard](screenshots/jenkins-dashboard.png)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+**Pipeline Stage View — Full Build Breakdown**
+![Pipeline Stages](screenshots/pipeline-stages.png)
 
-### Code Splitting
+**SonarQube — Quality Gate Passed**
+![SonarQube Quality Gate](screenshots/sonarqube-quality-gate.png)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+**Application Running**
+![App Screenshot](screenshots/app-running.png)
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## ✅ Code Quality Results (SonarQube)
 
-### Making a Progressive Web App
+| Metric | Result |
+|---|---|
+| Quality Gate | ✅ **Passed** |
+| Bugs | 1 |
+| Vulnerabilities | 0 |
+| Code Smells | 0 |
+| Lines of Code | 1.3k |
+| Languages Analyzed | CSS, JavaScript |
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+The pipeline is configured to fail the build automatically if the SonarQube Quality Gate does not pass, enforcing a baseline code quality standard before any image is even built.
 
-### Advanced Configuration
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## 🔒 Security Scanning (Trivy)
 
-### Deployment
+Trivy is run **twice** in this pipeline for defense-in-depth:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+1. **Filesystem scan** — checks source code and dependency manifests (`package.json`, `package-lock.json`) for known vulnerable packages before the image is even built.
+2. **Image scan** — scans the final built Docker image, catching vulnerabilities introduced by the base image or system-level packages.
 
-### `npm run build` fails to minify
+This ensures vulnerabilities are caught early (shift-left security) rather than discovered only after deployment.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-# Zomato-Clone
+---
+
+## 🐳 Docker Hub
+
+The final image is automatically pushed to Docker Hub as part of the pipeline:
+
+🔗 **[View on Docker Hub](https://hub.docker.com/r/krish951565/YOUR-IMAGE-NAME)**
+
+Pull and run it locally:
+```bash
+docker pull krish951565/YOUR-IMAGE-NAME
+docker run -p 3000:3000 krish951565/YOUR-IMAGE-NAME
+```
+
+---
+
+## ⚙️ Running Locally (without Jenkins)
+
+```bash
+# Clone the repo
+git clone https://github.com/Krish951565/Containerizing-NodeJS-Application-Using-CICD-PIPELINE.git
+cd Containerizing-NodeJS-Application-Using-CICD-PIPELINE
+
+# Install dependencies
+npm install
+
+# Run the app
+npm start
+```
+
+Or run it fully containerized:
+```bash
+docker build -t nodejs-app .
+docker run -p 3000:3000 nodejs-app
+```
+
+---
+
+## 🚀 What This Project Demonstrates
+
+- Designing a **multi-stage Jenkins declarative pipeline** from scratch
+- Integrating **SonarQube** for automated code quality gating
+- Using **Trivy** for both dependency and container image vulnerability scanning
+- Automating **Docker image build, tag, and push** to a registry
+- Automating **deployment** as the final pipeline stage
+- Building a pipeline that **fails fast** on quality or security issues, rather than deploying blindly
+
+---
+
+## 🧗 Challenges & Learnings
+
+- Configuring Jenkins to correctly authenticate with Docker Hub and SonarQube using stored credentials rather than hardcoded secrets
+- Tuning Trivy scans to catch real vulnerabilities without excessive false-positive noise
+- Structuring the pipeline as declarative stages so each step's timing and status is independently visible (as seen in the stage view above) for easier debugging
+
+---
+
+## 📄 License
+
+This project is for educational and portfolio purposes.
