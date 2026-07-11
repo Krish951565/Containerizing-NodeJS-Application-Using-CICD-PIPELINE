@@ -45,7 +45,8 @@ The goal was to simulate how a real engineering team ships a Node.js application
 ## 🔄 Pipeline Architecture
 
 ```
- <img width="1717" height="916" alt="image" src="https://github.com/user-attachments/assets/edeea46a-9368-4b24-920a-3539649c1083" />
+ <img width="940" height="501" alt="image" src="https://github.com/user-attachments/assets/4509296b-baf9-4e64-b98f-e8cd5bdfdff6" />
+
 
 ```
 
