@@ -26,114 +26,42 @@ The goal was to simulate how a real engineering team ships a Node.js application
 
 ## 🧰 Tech Stack
 
-| Category | Tool |
-|---|---|
-| CI/CD Orchestration | Jenkins |
-| Language / Runtime | Node.js |
-| Containerization | Docker |
-| Code Quality | SonarQube |
-| Security Scanning | Trivy (filesystem + image scan) |
-| Image Registry | Docker Hub |
-| Version Control | Git & GitHub |
+**Jenkins** — Orchestrates the entire pipeline end to end. Every stage in this project (checkout, code analysis, build, security scans, image push, and deployment) is defined as a Jenkins declarative pipeline, so the whole workflow runs automatically whenever new code is pushed, with zero manual steps in between.
+
+**Node.js** — The runtime the application itself is built on. It's the codebase being tested, analyzed, containerized, and deployed throughout this pipeline.
+
+**Docker** — Packages the Node.js application and all its dependencies into a single, portable container image. This guarantees the app runs identically on any machine — the developer's laptop, the CI server, or production — eliminating "it works on my machine" issues.
+
+**SonarQube** — Performs static code analysis on every build. It scans for bugs, code smells, and vulnerabilities, and enforces a Quality Gate — meaning if the code doesn't meet the defined quality bar, the pipeline can fail before a single Docker image is even built. This catches problems early, before they reach production.
+
+**Trivy** — A security scanner used twice in this pipeline for layered protection: first on the raw filesystem/dependencies (catching vulnerable npm packages before the build), and again on the final Docker image (catching vulnerabilities introduced by the base image or OS-level packages). This is a "shift-left" security practice — finding issues as early as possible rather than after deployment.
+
+**Docker Hub** — The registry where the final, scanned Docker image is automatically published after passing all quality and security checks. From there, it can be pulled and deployed anywhere.
+
+**Git & GitHub** — Version control for the source code, and the trigger point for the entire pipeline. Jenkins is configured to detect changes pushed to GitHub and kick off a fresh build automatically.
 
 ---
 
 ## 🔄 Pipeline Architecture
 
 ```
- ┌─────────────────┐
- │  Tool Install    │  Install required CLI tools (Node, Docker, scanners)
- └────────┬─────────┘
-          │
- ┌────────▼─────────┐
- │ Clean Workspace   │  Wipe previous build artifacts
- └────────┬─────────┘
-          │
- ┌────────▼─────────┐
- │  Code (Checkout)  │  Pull latest source from GitHub
- └────────┬─────────┘
-          │
- ┌────────▼─────────┐
- │  CQA (SonarQube)  │  Static code analysis & quality gate check
- └────────┬─────────┘
-          │
- ┌────────▼─────────┐
- │   Build Code      │  Install dependencies & build the app
- └────────┬─────────┘
-          │
- ┌────────▼─────────┐
- │   Docker Build     │  Build the container image
- └────────┬─────────┘
-          │
- ┌────────▼─────────┐
- │ Trivy (Filesystem)│  Scan source/dependency files for vulnerabilities
- └────────┬─────────┘
-          │
- ┌────────▼─────────┐
- │  Trivy Image Scan  │  Scan the built Docker image itself
- └────────┬─────────┘
-          │
- ┌────────▼─────────┐
- │   Push to Docker   │  Publish image to Docker Hub
- │       Hub          │
- └────────┬─────────┘
-          │
- ┌────────▼─────────┐
- │  Docker Deploy      │  Run the container from the published image
- └────────┬─────────┘
-          │
- ┌────────▼─────────┐
- │  Post Actions       │  Notifications / cleanup / reporting
- └──────────────────┘
+ <img width="1717" height="916" alt="image" src="https://github.com/user-attachments/assets/edeea46a-9368-4b24-920a-3539649c1083" />
+
 ```
 
 ### Pipeline Performance (Actual Run)
 
-| Stage | Time |
-|---|---|
-| Declarative: Tool Install | 182ms |
-| Clean Workspace | 420ms |
-| Code | 1s |
-| CQA | 32s |
-| Build code | 25s |
-| Docker Build | 3min 29s |
-| Trivy Files | 12s |
-| Image Scan | 1min 52s |
-| DockerHub Push | 1min 16s |
-| Docker Deploy | 765ms |
-| Post Actions | 335ms |
-| **Total Runtime** | **~7min 53s** |
 
----
+<img width="940" height="260" alt="image" src="https://github.com/user-attachments/assets/8968f690-a3bf-4de6-b2a6-f9f780d2d002" />
 
-## 📸 Screenshots
 
-> Add these images to a `screenshots/` folder in your repo, then they'll render automatically below.
-
-**Jenkins Dashboard**
-![Jenkins Dashboard](screenshots/jenkins-dashboard.png)
-
-**Pipeline Stage View — Full Build Breakdown**
-![Pipeline Stages](screenshots/pipeline-stages.png)
-
-**SonarQube — Quality Gate Passed**
-![SonarQube Quality Gate](screenshots/sonarqube-quality-gate.png)
-
-**Application Running**
-![App Screenshot](screenshots/app-running.png)
 
 ---
 
 ## ✅ Code Quality Results (SonarQube)
 
-| Metric | Result |
-|---|---|
-| Quality Gate | ✅ **Passed** |
-| Bugs | 1 |
-| Vulnerabilities | 0 |
-| Code Smells | 0 |
-| Lines of Code | 1.3k |
-| Languages Analyzed | CSS, JavaScript |
+<img width="940" height="200" alt="image" src="https://github.com/user-attachments/assets/71feb9a6-06d0-448a-af7c-6ebbe13ef61a" />
+
 
 The pipeline is configured to fail the build automatically if the SonarQube Quality Gate does not pass, enforcing a baseline code quality standard before any image is even built.
 
@@ -154,6 +82,9 @@ This ensures vulnerabilities are caught early (shift-left security) rather than 
 
 The final image is automatically pushed to Docker Hub as part of the pipeline:
 
+<img width="1901" height="742" alt="image" src="https://github.com/user-attachments/assets/e8f0e7d3-9f67-49a5-9afc-89b247295009" />
+
+
 🔗 **[View on Docker Hub](https://hub.docker.com/r/krish951565/YOUR-IMAGE-NAME)**
 
 Pull and run it locally:
@@ -161,7 +92,14 @@ Pull and run it locally:
 docker pull krish951565/YOUR-IMAGE-NAME
 docker run -p 3000:3000 krish951565/YOUR-IMAGE-NAME
 ```
+Final Result
 
+After passing through every stage of the pipeline — code quality checks, security scans, containerization, and deployment — here's the application running live, served straight from the Docker container built and shipped by this CI/CD pipeline:
+
+<img width="940" height="280" alt="image" src="https://github.com/user-attachments/assets/dbaff5a6-bdfc-449e-83e7-1e71b1a67ead" />
+
+
+From a single git push, this pipeline took the code all the way to a running, scanned, production-style deployment — with no manual steps in between.
 ---
 
 ## ⚙️ Running Locally (without Jenkins)
