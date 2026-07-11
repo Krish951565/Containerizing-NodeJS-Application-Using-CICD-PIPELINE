@@ -45,7 +45,13 @@ The goal was to simulate how a real engineering team ships a Node.js application
 ## 🔄 Pipeline Architecture
 
 ```
-<img width="2240" height="1260" alt="image" src="https://github.com/user-attachments/assets/8aac6949-017b-49e7-bacf-4e9b0e49f721" />
+GitHub  ───▶  Jenkins  ───▶  SonarQube  ───▶  Node.js Build
+                 │
+                 ▼
+          Docker Build ───▶ Trivy FS ───▶ Trivy Image
+                                      │
+                                      ▼
+                             Docker Hub ───▶ Docker Deployment ───▶ Post Actions
 
 ```
 
