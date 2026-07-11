@@ -1,3 +1,6 @@
+<img width="1600" height="853" alt="WhatsApp Image 2026-07-11 at 9 09 47 AM" src="https://github.com/user-attachments/assets/68c4cd36-e8a5-4c2f-8018-adce09fb05fa" />
+
+
 # 🍽️ Containerizing a Node.js Application Using CI/CD Pipeline
 
 An end-to-end DevOps pipeline that takes a Node.js web application (a Zomato-style food discovery app) from source code to a running, security-scanned Docker container — fully automated with Jenkins.
@@ -45,7 +48,7 @@ The goal was to simulate how a real engineering team ships a Node.js application
 ## 🔄 Pipeline Architecture
 
 ```
-<img width="1600" height="853" alt="WhatsApp Image 2026-07-11 at 9 09 47 AM" src="https://github.com/user-attachments/assets/77931379-4650-446f-8c65-b5433dabea25" />
+
 
 
 ```
